@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="script/styles_income.css">
+    <title>Healthcare Coverage in the U.S.</title>
+    <style>
+        #navigate-home-button {
+            background-color: #ff0000;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 10px;
+            left: 80%;
+            transform: translateX(-50%);
+        }
+
+        #main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chart-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #legend {
+            width: 100%; /* Occupy the full width */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Healthcare Coverage in the U.S. Based on Poverty Level</h1>
+    </header>
+
+    <main id="main-container">
+        <div id="chart-container">
+            <!-- Dropdown menu for selecting state -->
+            <label for="stateDropdown">Select State:</label>
+            <select id="stateDropdown"></select>
+
+            <!-- Pie chart containers -->
+            <div id="chartBelow100"></div>
+            <div id="chartBelow200"></div>
+        </div>
+
+        <!-- Legend -->
+        <div id="legend" class="legend"></div>
+
+        <!-- Navigate Homepage Button -->
+        <button id="navigate-home-button" onclick="navigateToHomePage()">Homepage</button>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        function loadScript(scriptSrc) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = scriptSrc;
+                script.onload = () => {
+                    resolve(window[scriptSrc.split('/').pop().split('.')[0]]);
+                };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Fix the path and use double quotes for the script file paths
+        const below100Script = "file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/script/dataBelow100.js";
+        const below200Script = "file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/script/dataBelow200.js";
+
+        // Load external scripts
+        Promise.all([loadScript(below100Script), loadScript(below200Script)])
+        .then(([dataBelow100, dataBelow200]) => {
+            console.log("Data below 100 loaded successfully:", dataBelow100);
+            console.log("Data below 200 loaded successfully:", dataBelow200);
+
+            const states = dataBelow100.map(entry => entry.Location);
+
+            // Populate dropdown menu
+            const dropdown = d3.select("#stateDropdown");
+
+            dropdown
+            .selectAll("option")
+            .data(states)
+            .enter()
+            .append("option")
+            .text(d => d)
+            .attr("value", d => d);
+
+            dropdown.on("change", updatePieChart);
+
+            updatePieChart();
+
+            function updatePieChart() {
+                const selectedState = dropdown.property("value");
+                console.log("Selected State:", selectedState);
+                
+                // Find data for the selected state
+                const selectedDataBelow100 = dataBelow100.find(entry => entry.Location === selectedState);
+                const selectedDataBelow200 = dataBelow200.find(entry => entry.Location === selectedState);
+
+                // Call a function to create pie chart using selectedDataBelow100 and selectedDataBelow200
+                createPieChart(selectedDataBelow100, "chartBelow100", "Health Coverage Below 100% of Federal Poverty Level");
+                createPieChart(selectedDataBelow200, "chartBelow200", "Health Coverage Below 200% of Federal Poverty Level");
+
+                createLegend(selectedDataBelow100, selectedDataBelow200);
+            }
+
+            // Function to create a pie chart
+            function createPieChart(data, chartId, chartTitle) {
+                // Select the chart container element
+                const chartContainer = d3.select(`#${chartId}`);
+
+                // Clear previous content
+                chartContainer.html("");
+
+                // Check if data is available
+                if (!data) {
+                    chartContainer.text("No data available for the selected state.");
+                    return;
+                }
+
+                // Extract data values for the pie chart
+                const pieData = [
+                    { category: "Employer", value: data.Employer },
+                    { category: "Non-Group", value: data["Non-Group"] },
+                    { category: "Medicaid", value: data.Medicaid },
+                    { category: "Other Public", value: data["Other Public"] },
+                    { category: "Uninsured", value: data.Uninsured }
+                ];
+
+                // Set up dimensions for the pie chart
+                const width = 1000;
+                const height = 400;
+                const radius = Math.min(width, height) / 2;
+
+                // Create an SVG element
+                const svg = chartContainer
+                    .append("svg")
+                    .attr("width", width + 50)
+                    .attr("height", height + 60)
+                    .append("g")
+                    .attr("transform", `translate(${width / 2 + 50},${height / 2 + 50})`);
+
+                // Add title to the chart
+                svg.append("text")
+                    .attr("x", width / 18)
+                    .attr("y", -height / 2 - 20)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "14px")
+                    .style("font-weight", "bold")
+                    .text(chartTitle);
+
+                // Create a pie chart layout
+                const pie = d3.pie().value(d => d.value);
+
+                // Create an arc generator
+                const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+                // Create pie slices
+                const slices = svg.selectAll("slice")
+                    .data(pie(pieData))
+                    .enter()
+                    .append("g");
+
+                // Add paths for each slice
+                slices.append("path")
+                    .attr("d", arc)
+                    .attr("fill", (d, i) => d3.schemeCategory10[i]);
+
+                // Add percentage
+                slices.append("text")
+                    .attr("transform", d => `translate(${arc.centroid(d)})`)
+                    .attr("text-anchor", "middle")
+                    .text(d => `${(d.data.value * 100).toFixed(2)}%`);
+
+                console.log(`Creating pie chart for ${chartId}`);
+                console.log(`Title for ${chartId}: ${chartTitle}`);
+            }
+
+            // Function to create legend
+            function createLegend(dataBelow100, dataBelow200) {
+                const legendContainer = d3.select("#legend");
+
+                // Clear previous content
+                legendContainer.html("");
+
+                // Combine categories from both datasets to get unique categories
+                const uniqueCategories = [
+                    "Employer", "Non-Group", "Medicaid", "Other Public", "Uninsured"
+                ];
+
+                // Add legend items
+                const legendItems = legendContainer.selectAll(".legend-item")
+                    .data(uniqueCategories)
+                    .enter()
+                    .append("div")
+                    .classed("legend-item", true);
+
+                // Add legend color boxes
+                legendItems.append("div")
+                    .classed("legend-color", true)
+                    .style("background-color", (d, i) => d3.schemeCategory10[i % 10]);
+
+                // Add legend text
+                legendItems.append("span")
+                    .text(d => d);
+            }
+        })
+        .catch(error => {
+            console.error("Error loading data:", error);
+        });
+
+        // Function to navigate to the home page
+        function navigateToHomePage() {
+            window.location.href = "file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/index.html";
+        }
+    </script>
+</body>
+</html>
+

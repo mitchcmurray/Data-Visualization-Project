@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Healthcare Coverage between Men and Women</title>
+
+  <!-- Include your D3.js library -->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+
+  <!-- Link to your external CSS file -->
+  <link rel="stylesheet" type="text/css" href="script/genderstyle.css">
+
+  <!-- Main script -->
+  <style>
+      #navigate-home-button {
+        background-color: #ff0000; /* Red background color */
+        color: #fff;
+        padding: 10px 20px; 
+        font-size: 14px;
+        margin: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-20%);
+    }
+  </style>   
+</head>
+
+    <!-- Navigate Homepage Button -->
+    <button id="navigate-home-button" onclick="navigateToHomePage()">Homepage</button>
+
+<body>
+  <div id="healthcaregenderChart">
+    <script src="script/GenderMen.js"></script>
+    <script src="script/GenderWomen.js"></script>
+    <script src="script/genderchart.js"></script>
+  </div>
+
+  <script>
+     // Function to navigate to the home page
+      function navigateToHomePage() {
+          window.location.href = 'index.html';
+      }
+  </script> 
+</body>
+</html>

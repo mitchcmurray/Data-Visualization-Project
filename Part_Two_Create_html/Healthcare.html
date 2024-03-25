@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Healthcare Coverage</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        select {
+            margin-bottom: 10px;
+        }
+
+        #chartContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #pieChart {
+            margin: 10px auto;
+            width: 500px;
+            height: 500px;
+        }
+
+        #legend {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        #legend td {
+            padding: 5px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #homepage-button {
+            background-color: #ff0000; 
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chartContainer">
+        <h1>US Healthcare Coverage by State</h1>
+
+        <label for="stateDropdown">Select a State:</label>
+        <select id="stateDropdown" onchange="updatePieChart()">
+            <option value="">All States</option>
+            
+        </select>
+
+        <div id="pieChart"></div>
+
+        <table id="legend"></table>
+
+        <!-- Homepage Button -->
+        <button id="homepage-button" onclick="navigateToHomePage()">Homepage</button>
+    </div>
+
+    <script src="script/population.js"></script>
+    <script>
+        const stateDropdown = document.getElementById('stateDropdown');
+        let currentData = populationData;
+
+        // Populate the dropdown with state options
+        populationData.forEach(data => {
+            const option = document.createElement('option');
+            option.value = data.Location;
+            option.text = data.Location;
+            stateDropdown.appendChild(option);
+        });
+
+        // Function to update the pie chart
+        function updatePieChart() {
+            const selectedState = stateDropdown.value;
+
+            if (selectedState) {
+                // Filter data for the selected state
+                currentData = populationData.filter(data => data.Location === selectedState);
+            } else {
+                // Use all data if no state is selected
+                currentData = populationData;
+            }
+
+            // Update the pie chart
+            drawPieChart(currentData[0]);
+        }
+
+        // Function to draw the pie chart using D3.js
+        function drawPieChart(data) {
+            const pieChartContainer = document.getElementById('pieChart');
+            pieChartContainer.innerHTML = ''; 
+
+            const width = 500;
+            const height = 500;
+            const radius = Math.min(width, height) / 2;
+
+            const svg = d3.select('#pieChart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2},${height / 2})`);
+
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            const pie = d3.pie()
+                .sort(null)
+                .value(d => d);
+
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            const dataValues = Object.values(data).slice(1);
+
+            const arcs = svg.selectAll('arc')
+                .data(pie(dataValues))
+                .enter()
+                .append('g')
+                .attr('class', 'arc');
+
+            arcs.append('path')
+                .attr('d', arc)
+                .attr('fill', (d, i) => color(i));
+
+            arcs.append('text')
+                .attr('transform', d => {
+                    const [x, y] = arc.centroid(d);
+                    return `translate(${x},${y})`;
+                })
+                .attr('text-anchor', 'middle')
+                .text(d => `${(d.data * 100).toFixed(2)}%`);
+
+            // Add legend
+            const legend = document.getElementById('legend');
+            legend.innerHTML = ''; 
+
+            const legendData = pie(dataValues).map((d, i) => {
+                return {
+                    label: Object.keys(data)[i + 1], 
+                };
+            });
+
+            legendData.forEach(item => {
+                const row = legend.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+
+                cell1.innerHTML = `<div class="legend-color" style="background-color: ${item.color};"></div>`;
+                cell2.textContent = `${item.label} (${(data[item.label] * 100).toFixed(2)}%)`;
+            });
+        }
+
+        // Function to navigate to the home page
+        function navigateToHomePage() {
+            window.location.href = 'index.html';
+        }
+
+        // Initial chart
+        updatePieChart();
+    </script>
+</body>
+
+</html>
+

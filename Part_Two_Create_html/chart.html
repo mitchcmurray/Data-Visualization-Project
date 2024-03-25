@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Coverage on Race Demographic</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="script/employer.js"></script>
+    <script src="script/medicaid.js"></script>
+    <script src="script/medicare.js"></script>
+    <script src="script/uninsured.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chart-container {
+            position: relative;
+        }
+
+        #navigate-home-button {
+            background-color: #ff0000; 
+            color: #fff;
+            padding: 10px 20px; 
+            font-size: 14px; 
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 10px;
+            left: 80%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center;">US Healthcare Coverage by Race Demographic</h1> 
+
+    <label for="stateDropdown">Select a State:</label>
+    <select id="stateDropdown"></select>
+
+    <div id="chart-container">
+       
+    </div>
+
+    <!-- Navigate Homepage Button -->
+    <button id="navigate-home-button" onclick="navigateToHomePage()">Homepage</button>
+
+    <script>
+        // Combined data from employer.js, medicaid.js, medicare.js, and uninsured.js
+        const combinedData = mergeData(employerData, medicaidData, medicareData, uninsuredData);
+        
+        // Extract state names for dropdown options
+        const stateOptions = Object.keys(combinedData);
+        
+        // Populate dropdown menu with state options
+        const dropdown = d3.select("#stateDropdown");
+        
+        dropdown
+            .selectAll("option")
+            .data(stateOptions)
+            .enter()
+            .append("option")
+            .text(d => d);
+        
+        // Initial state selection
+        const initialState = stateOptions[0];
+        
+        // Draw the initial bar graphs
+        drawBarGraphs(initialState, combinedData);
+        
+        // Add event listener for dropdown change
+        dropdown.on("change", function() {
+            const selectedState = this.value;
+            drawBarGraphs(selectedState, combinedData);
+        });
+        
+        // Merge data from the 4 different sources 
+        function mergeData(employer, medicaid, medicare, uninsured) {
+            
+            const combinedData = {};
+        
+            // Making 'Location' the key for state names
+            for (const state in employer) {
+                const stateName = employer[state].Location; 
+                combinedData[stateName] = {};
+                for (const race in employer[state]) {
+                    if (race !== 'Location') {
+                        combinedData[stateName][race] = {
+                            employer: employer[state][race],
+                            medicaid: medicaid[state][race],
+                            medicare: medicare[state][race],
+                            uninsured: uninsured[state][race],
+                        };
+                    }
+                }
+            }
+        
+            return combinedData;
+        }
+        
+        // Bar graphs using D3.js(add "g"for positioning and .attr "transform", and "translate" to move svg to the right)
+        function drawBarGraphs(selectedState, data) {
+            const races = Object.keys(data[selectedState]);
+            const svg = d3.select("#chart-container")
+                .html("")  
+                .append("svg")
+                .attr("width", 2500)
+                .attr("height", 1400)
+                .append("g")  
+                .attr("transform", "translate(" + (1400 / 2) + "," + 0 + ")");  
+        
+            const xScale = d3.scaleBand()
+                .domain(["employer", "medicaid", "medicare", "uninsured"])
+                .range([0, 800])
+                .padding(0.1);
+            
+            // setting percentages range from 0 to 1
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])  
+                .range([600, 0]);
+        
+            const colorScale = d3.scaleOrdinal()
+                .domain(["White", "Black", "Hispanic", "Asian\/Native Hawaiian and Pacific Islander", "American Indian\/Alaska Native", "Multiple Races"])
+                .range(d3.schemeCategory10);
+        
+            // Bars for each race
+            races.forEach((race, index) => {
+                const raceData = data[selectedState][race];
+                ["employer", "medicaid", "medicare", "uninsured"].forEach((coverageType, i) => {
+                    svg.append("rect")
+                        .attr("x", xScale(coverageType) + xScale.bandwidth() / races.length * index)
+                        .attr("y", yScale(raceData[coverageType]))
+                        .attr("width", xScale.bandwidth() / races.length)
+                        .attr("height", 600 - yScale(raceData[coverageType]))
+                        .attr("fill", colorScale(race))
+                        .attr("transform", `translate(0, 0)`);
+                });
+            });
+        
+            // Add axes and labels
+            const xAxis = d3.axisBottom(xScale)
+                .tickSize(0);
+        
+            const yAxis = d3.axisLeft(yScale)
+                .tickFormat(d3.format(".0%"));
+        
+            svg.append("g")
+                .attr("transform", `translate(0,600)`)
+                .call(xAxis);
+        
+            svg.append("g")
+                .call(yAxis);
+        
+            // Add legend
+            const legend = svg.append("g")
+                .attr("transform", `translate(700,20)`)
+                .selectAll("g")
+                .data(["White", "Black", "Hispanic", "Asian\/Native Hawaiian and Pacific Islander", "American Indian\/Alaska Native", "Multiple Races"])
+                .enter().append("g");
+        
+            legend.append("rect")
+                .attr("y", (d, i) => i * 20)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", colorScale);
+        
+            legend.append("text")
+                .attr("x", 25)
+                .attr("y", (d, i) => i * 20 + 9)
+                .attr("dy", "0.32em")
+                .style("font-size", "12px")
+                .text(d => d);
+        
+            // Add title
+            svg.append("text")
+                .attr("x", 400)
+                .attr("y", 20)
+                .attr("text-anchor", "middle")
+                .style("font-size", "18px")
+                .text(`${selectedState}`);
+        }
+
+        // Function to navigate to the home page
+        function navigateToHomePage() {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+</body>
+</html>

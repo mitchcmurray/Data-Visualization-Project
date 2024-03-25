@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="script/style.css">
+    <title>Healthcare Coverage Data Visualization</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #totalPopulationButton {
+            background-color: #ff0000;
+            color: #fff;
+        }
+
+        #raceDemographicButton {
+            background-color: #0000ff;
+            color: #fff;
+        }
+
+        #genderButton {
+            background-color: #808080;
+            color: #fff;
+        }
+
+        #fplIncomeButton {
+            background-color: #add8e6;
+            color: #000;
+        }
+
+        #custom-jumbotron {
+            margin-top: 50px;
+        }
+
+        #bottom-text {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        #container {
+            width: 70%; 
+            margin: 0 auto;
+        }
+
+        #bottom-text a {
+            color: black;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="jumbotron text-center" id="custom-jumbotron">
+                    <h1 class="display-4"></h1>
+                    <p id="text"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- "Coverage Based On:" -->
+        <div class="row">
+            <div class="col-md-12">
+                <p>Coverage Based On:</p>
+            </div>
+        </div>
+
+        <!-- buttons -->
+        <div class="row">
+            <div class="col-md-12">
+                <button id="totalPopulationButton" onclick="navigateToPage('file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/Healthcare.html')">Total Population</button>
+                <button id="raceDemographicButton" onclick="navigateToPage('file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/chart.html')">Race Demographic</button>
+                <button id="genderButton" onclick="navigateToPage('file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/indexGender.html')">Gender</button>
+                <button id="fplIncomeButton" onclick="navigateToPage('file:///C:/Users/Owner/DABootcamp/Project-Three/Part_Two_Create_html/income.html')">FPL-Income</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Added text at the bottom -->
+    <div id="container">
+        <div id="bottom-text">
+            <p><strong>This page is a Data Visualization project that gives a visual layout of the type of healthcare coverage across the US, including District of Columbia. The Data Visualization will also provide a breakdown for coverage by Gender, Federal Poverty Level, and Race/Ethnicity. Visit <a href="https://github.com/YvensJ/Project-Three" target="_blank">https://github.com/YvensJ/Project-Three</a> for more information on this Data Visualization project. Contributors: Maria Funmi A Frazier, Mitch Murray, Yvens Joseph</strong></p>
+        </div>
+    </div>
+
+    <script>
+        function navigateToPage(page) {
+            window.location.href = page;
+        }
+    </script>
+
+</body>
+</html>

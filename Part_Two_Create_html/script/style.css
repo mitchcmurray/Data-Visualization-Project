@@ -1,0 +1,33 @@
+body {
+    background-image: url("../../Images/hc3.png"); /* Replace with the path to your background image */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top; /* Adjust the background position */
+    margin: 0;
+    padding: 100px; /* Adjust the padding to your preference */
+    box-sizing: border-box; /* Include padding in the total body size */
+}
+
+#text {
+    font-weight: bold;
+    font-size: large;
+}
+
+#custom-jumbotron {
+    background-color: rgba(255, 255, 255, 0.8);
+    background-image: url("../../Images/hc.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 150px; /* Adjust padding as needed */
+    border-radius: 20px; /* Add rounded corners */
+    border: 2px solid #13cce1; /* Add border with a different color */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+    position: relative;
+    z-index: 1;
+}
+
+.container-fluid {
+    max-width: 80%;
+    margin: 0 auto;
+}

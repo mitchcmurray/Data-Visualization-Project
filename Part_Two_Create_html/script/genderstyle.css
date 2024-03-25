@@ -1,0 +1,59 @@
+* Apply a background color to the body */
+body {
+  background-color: #f4f4f4;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Style the title */
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+/* Style the dropdown menu */
+select {
+  padding: 8px;
+  font-size: 16px;
+}
+
+/* Style the SVG container */
+svg {
+  display: block;
+  margin: 20px auto;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0);
+}
+
+/* Style the treemap rectangles and text */
+.rect {
+  stroke: #fff;
+}
+
+.text {
+  font-size: 12px;
+  fill: #333;
+}
+
+/* Style the legend */
+.legend {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.legend-text {
+  font-size: 14px;
+  color: #333;
+}
